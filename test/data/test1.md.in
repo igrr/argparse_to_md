@@ -1,0 +1,9 @@
+Some text before
+
+<!--argparse_to_md:test1:get_parser-->
+
+<!--argparse_to_md_end-->
+
+some text after
+
+<!--another comment-->

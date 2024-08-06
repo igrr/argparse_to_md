@@ -1,0 +1,6 @@
+-   id: argparse_to_md
+    name: argparse to markdown
+    description: Generates and updates markdown documentation snippets from argparse parsers. By default, runs on README.md files.
+    entry: argparse_to_md
+    language: python
+    files: '^README\.md$'

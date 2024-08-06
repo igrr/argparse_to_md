@@ -1,0 +1,34 @@
+[build-system]
+requires = [
+    "setuptools>=60",
+    "setuptools-scm>=8.0"
+]
+
+[tool.setuptools_scm]
+
+[tool.black]
+    line-length               = 120
+    skip-string-normalization = true
+
+[tool.ruff]
+    line-length    = 120
+    lint.select    = ['I', 'E', 'F', 'W']
+    target-version = "py38"
+    exclude = [ 'test/data/' ]
+    force-exclude = true
+
+[tool.mypy]
+    disallow_incomplete_defs = false # Disallows defining functions with incomplete type annotations
+    disallow_untyped_defs    = false # Disallows defining functions without type annotations or with incomplete type annotations
+    ignore_missing_imports   = true  # Suppress error messages about imports that cannot be resolved
+    python_version           = "3.9" # Specifies the Python version used to parse and check the target program
+    warn_no_return           = true  # Shows errors for missing return statements on some execution paths
+    warn_return_any          = true  # Shows a warning when returning a value with type Any from a function declared with a non- Any return type
+
+[tool.commitizen]
+    version_provider = "scm"
+    tag_format = "v$version"
+    major_version_zero = true
+    annotated_tag = true
+    update_changelog_on_bump = true
+    bump_message = "change: release v$new_version"
