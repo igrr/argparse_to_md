@@ -1,0 +1,11 @@
+test2: CLI test
+
+<!--argparse_to_md:test2:get_parser-->
+Usage:
+```
+testprog [-h] [--foo FOO]
+```
+
+Optional arguments:
+- `--foo FOO`: foo help
+<!--argparse_to_md_end-->

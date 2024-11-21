@@ -1,4 +1,5 @@
 import argparse
+import difflib
 import io
 import sys
 
@@ -21,6 +22,7 @@ def get_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--check",
+        action="store_true",
         help="Check if the files need to be updated, but don't modify them. "
         "Non-zero exit code is returned if any file needs to be updated.",
     )
@@ -37,7 +39,7 @@ def main() -> None:
 
     loader = FunctionLoader(args.extra_sys_path)
 
-    changes_made = False
+    changes_required = False
     for in_markdown in args.input:
         in_markdown_str = in_markdown.read()
         in_markdown.seek(0)
@@ -46,16 +48,21 @@ def main() -> None:
         out_markdown_str = out_markdown.getvalue()
 
         if in_markdown_str != out_markdown_str:
-            print(f"Updating {in_markdown.name}...", file=sys.stderr)
             if args.check:
-                changes_made = True
+                print(f"Changes required in {in_markdown.name}:", file=sys.stderr)
+                for line in difflib.unified_diff(
+                    in_markdown_str.splitlines(), out_markdown_str.splitlines(), lineterm=""
+                ):
+                    print(line, file=sys.stderr)
+                changes_required = True
             else:
+                print(f"Updating {in_markdown.name}...", file=sys.stderr)
                 in_markdown.seek(0)
                 in_markdown.truncate()
                 in_markdown.write(out_markdown.getvalue())
                 in_markdown.close()
 
-    if args.check and changes_made:
+    if args.check and changes_required:
         raise SystemExit(2)
 
 
