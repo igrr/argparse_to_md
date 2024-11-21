@@ -1,3 +1,11 @@
+## v0.3.0 (2024-11-21)
+
+### Fix
+
+- correct 'check' argument behavior, add test
+- automatically add markdown file directory to sys.path
+- set maximum width of the command help to 100 chars
+
 ## v0.2.0 (2024-11-21)
 
 ### Refactor
