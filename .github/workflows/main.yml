@@ -59,6 +59,8 @@ jobs:
 
   upload_wheels:
     if: github.event_name == 'push' && github.ref_type == 'tag'
+    permissions:
+      id-token: write
     needs: build_wheels
     runs-on: ubuntu-latest
     steps:
@@ -70,9 +72,6 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dist
+        path: dist
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_TOKEN }}
-        repository_url: ${{ secrets.PYPI_URL }}
