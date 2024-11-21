@@ -55,7 +55,7 @@ jobs:
         python3 -m venv venv
         . venv/bin/activate
         pip install dist/*.whl
-        astyle_py --version
+        argparse_to_md --version
 
   upload_wheels:
     if: github.event_name == 'push' && github.ref_type == 'tag'
