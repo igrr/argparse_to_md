@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 class FunctionLoader:
     def __init__(self, extra_sys_path: t.Optional[t.List[str]] = None):
-        self.extra_sys_path = extra_sys_path
+        self.extra_sys_path = extra_sys_path or []
         self.modules_imported: t.Dict[str, t.Any] = {}
 
     @staticmethod
@@ -23,8 +23,18 @@ class FunctionLoader:
 
         return SysPathContext()
 
-    def load_function(self, module_name: str, function_name: str) -> t.Any:
-        with self._sys_path_extend(self.extra_sys_path):
+    def load_function(self, module_name: str, function_name: str, cwd: t.Optional[str] = None) -> t.Any:
+        """
+        Load a function from a module by name.
+
+        :param module_name: The name of the module to import.
+        :param function_name: The name of the function to load from the module.
+        :param cwd: Optional: the current working directory, to add to the sys.path.
+        """
+        extra_sys_path = self.extra_sys_path
+        if cwd is not None:
+            extra_sys_path = [cwd] + extra_sys_path
+        with self._sys_path_extend(extra_sys_path):
             last_missing_module_name = None
             while True:
                 try:
