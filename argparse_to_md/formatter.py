@@ -1,8 +1,13 @@
 import argparse
 import typing as t
 
+HELP_WIDTH = 100
+
 
 class MarkdownHelpFormatter(argparse.HelpFormatter):
+    def __init__(self, width=HELP_WIDTH, *args, **kwargs):
+        super().__init__(width=width, *args, **kwargs)
+
     def _format_usage(self, usage, actions, groups, prefix):
         prefix = "Usage:\n```\n"
         result = super()._format_usage(usage, actions, groups, prefix).rstrip("\n")
