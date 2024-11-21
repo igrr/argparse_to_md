@@ -1,5 +1,8 @@
 # argparse_to_md: Argparse to README.md
 
+![PyPI - Version](https://img.shields.io/pypi/v/argparse-to-md?labelColor=383838)
+ [![CI](https://github.com/igrr/argparse_to_md/actions/workflows/main.yml/badge.svg)](https://github.com/igrr/argparse_to_md/actions/workflows/main.yml) ![Python](https://img.shields.io/badge/dynamic/yaml?url=https://raw.githubusercontent.com/igrr/argparse_to_md/main/.github/workflows/main.yml&query=$.jobs['test'].strategy.matrix['python-version']&label=Python&logo=python&color=3366ff&logoColor=ffcc00&labelColor=383838)
+
 `argparse_to_md` tool helps developers of command-line tools written in Python keep the usage instructions in their README.md files up to date. It can automatically update usage instructions in README.md file based on `argparse` parsers defined in the code. It can be invoked as a pre-commit hook or as a standalone script.
 
 ## How to use argparse_to_md:
@@ -62,8 +65,8 @@ You can also use argparse_to_md from the command line:
 Usage:
 ```
 argparse_to_md [-h] [-i INPUT [INPUT ...]]
-                          [--extra-sys-path EXTRA_SYS_PATH [EXTRA_SYS_PATH ...]]
-                          [--check CHECK] [--version]
+                          [--extra-sys-path EXTRA_SYS_PATH [EXTRA_SYS_PATH ...]] [--check CHECK]
+                          [--version]
 ```
 
 Optional arguments:
