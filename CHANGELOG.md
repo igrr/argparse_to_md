@@ -1,3 +1,9 @@
+## v0.3.1 (2024-11-21)
+
+### Fix
+
+- fix issue with publishing to PyPI
+
 ## v0.3.0 (2024-11-21)
 
 ### Fix
