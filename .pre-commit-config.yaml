@@ -43,5 +43,7 @@ repos:
       - id: argparse_to_md
         name: "Update README.md with argparse help"
         language: python
-        files: '^README\.md$'
+        types_or: [markdown, python]
+        pass_filenames: false
         entry: python -m argparse_to_md
+        args: [--input=README.md]

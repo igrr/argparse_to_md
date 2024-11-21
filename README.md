@@ -11,9 +11,9 @@
     def create_parser() -> argparse.ArgumentParser:
         parser = argparse.ArgumentParser(prog='mytool')
         parser.add_argument(...)
-        return argparse
+        return parser
 
-    def main()
+    def main():
         parser = create_parser()
         parser.parse_args()
     ```
@@ -29,7 +29,7 @@
 
 ### Usage as a pre-commit hook
 
-Add to your .pre-commit-config.yaml:
+Add to your .pre-commit-config.yaml. This pre-commit hook will be triggered by changes to all Python or Markdown files, and it will edit README.md:
 
 ```yaml
 repos:
@@ -37,9 +37,22 @@ repos:
     rev: v0.1.0
     hooks:
     -   id: argparse_to_md
+
+        # By default, 'README.md' file will be processed.
+        # If you need to modify the list of files, specify them in 'args'
+        args: [--input=README.md, --input=README_CN.md]
 ```
 
-By default, the pre-commit hook will be triggered by changes to all Python files, and it will edit README.md.
+If you need to adjust the list of files to be updated, specify them in `args:` as follows:
+
+```yaml
+repos:
+-   repo: https://github.com/igrr/argparse_to_md.git
+    rev: v0.1.0
+    hooks:
+    -   id: argparse_to_md
+        args: [--input=README.md, --input=README_CN.md]
+```
 
 ### Command-line usage
 
@@ -48,17 +61,23 @@ You can also use argparse_to_md from the command line:
 <!-- argparse_to_md:argparse_to_md.__main__:get_parser -->
 Usage:
 ```
-argparse_to_md [-h]
+argparse_to_md [-h] [-i INPUT [INPUT ...]]
                           [--extra-sys-path EXTRA_SYS_PATH [EXTRA_SYS_PATH ...]]
-                          files [files ...]
+                          [--check CHECK] [--version]
 ```
 
-Positional arguments:
-- `files`: Markdown files to update
-
 Optional arguments:
+- `-i INPUT [INPUT ...]`, `--input INPUT [INPUT ...]`: Markdown file to update (can be specified multiple times).
 - `--extra-sys-path EXTRA_SYS_PATH [EXTRA_SYS_PATH ...]`: Extra paths to add to PYTHONPATH before loading the module
+- `--check CHECK`: Check if the files need to be updated, but don't modify them. Non-zero exit code is returned if any file needs to be updated.
+- `--version`: show program's version number and exit
 <!-- argparse_to_md_end -->
+
+### Related projects
+
+- https://github.com/9999years/argdown/ — Generates Markdown and RestructuredText from argparse-based parsers.
+- https://github.com/alex-rudakov/sphinx-argparse — Sphinx extension for documenting argparse-based parsers.
+- https://github.com/docopt/docopt — Inverse of the above, constructs a parser based on documentation.
 
 ### License
 
