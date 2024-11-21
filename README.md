@@ -40,10 +40,6 @@ repos:
     rev: v0.2.0
     hooks:
     -   id: argparse_to_md
-
-        # By default, 'README.md' file will be processed.
-        # If you need to modify the list of files, specify them in 'args'
-        args: [--input=README.md, --input=README_CN.md]
 ```
 
 If you need to adjust the list of files to be updated, specify them in `args:` as follows:
