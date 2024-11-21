@@ -32,6 +32,12 @@ repos:
         args:
           - --subject-min-length=12  # For release commits
 
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.23
+    hooks:
+      - id: validate-pyproject
+        additional_dependencies: ["validate-pyproject-schema-store[all]==v2024.11.18"]
+
   - repo: local
     hooks:
       - id: argparse_to_md
