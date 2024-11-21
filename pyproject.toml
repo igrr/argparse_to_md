@@ -38,7 +38,8 @@ changelog = "https://github.com/igrr/argparse_to_md/blob/main/CHANGELOG.md"
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "pre-commit"
+    "pre-commit",
+    "commitizen"
 ]
 
 [project.scripts]
