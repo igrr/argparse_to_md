@@ -34,7 +34,7 @@ Add to your .pre-commit-config.yaml. This pre-commit hook will be triggered by c
 ```yaml
 repos:
 -   repo: https://github.com/igrr/argparse_to_md.git
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
     -   id: argparse_to_md
 
@@ -48,7 +48,7 @@ If you need to adjust the list of files to be updated, specify them in `args:` a
 ```yaml
 repos:
 -   repo: https://github.com/igrr/argparse_to_md.git
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
     -   id: argparse_to_md
         args: [--input=README.md, --input=README_CN.md]
