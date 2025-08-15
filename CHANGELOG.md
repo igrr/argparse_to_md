@@ -1,3 +1,9 @@
+## v0.4.0 (2025-08-15)
+
+### Feat
+
+- support for subparsers and format customization
+
 ## v0.3.1 (2024-11-21)
 
 ### Fix
