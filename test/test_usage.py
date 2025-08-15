@@ -3,8 +3,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+from argparse_to_md.formatter import MarkdownHelpFormatterOptions
 from argparse_to_md.loader import FunctionLoader
-from argparse_to_md.markdown_processor import process_markdown
+from argparse_to_md.markdown_processor import args_to_options, process_markdown
 
 
 def test_usage():
@@ -13,6 +16,9 @@ def test_usage():
     loader = FunctionLoader()
     with open(data_dir / "test1.md.in") as in_md:
         process_markdown(in_md, out_md, loader)
+
+    with open(data_dir / "test1.md.actual", "w") as actual_md:
+        actual_md.write(out_md.getvalue())
 
     assert out_md.getvalue() == (data_dir / "test1.md.expected").read_text()
 
@@ -56,3 +62,27 @@ def test_cli_check_uage():
     assert result.returncode == 0
     assert result.stderr == ""
     assert result.stdout == ""
+
+
+def test_subparsers():
+    data_dir = Path(__file__).parent / "data"
+    out_md = io.StringIO()
+    loader = FunctionLoader()
+    with open(data_dir / "test3.md.in") as in_md:
+        process_markdown(in_md, out_md, loader)
+
+    with open(data_dir / "test3.md.actual", "w") as actual_md:
+        actual_md.write(out_md.getvalue())
+
+    assert out_md.getvalue() == (data_dir / "test3.md.expected").read_text()
+
+
+def test_arguments_to_options():
+    assert args_to_options("") == MarkdownHelpFormatterOptions()
+    assert args_to_options("subheading_level=2") == MarkdownHelpFormatterOptions(subheading_level=2)
+    with pytest.raises(ValueError):
+        args_to_options("subheading_level=2:foo=bar")
+    with pytest.raises(ValueError):
+        args_to_options("opt1:opt2")
+    with pytest.raises(ValueError):
+        args_to_options("opt=val=val2")
