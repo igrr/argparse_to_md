@@ -72,6 +72,19 @@ Optional arguments:
 - `--version`: show program's version number and exit
 <!-- argparse_to_md_end -->
 
+
+### Customizing output
+
+Output can be customized by passing additional options in the comment:
+```
+    <!-- argparse_to_md:module_name:function_name:opt1=value1:opt2=value2 -->
+    <!-- argparse_to_md_end -->
+```
+
+The following options are supported:
+
+- `subheading_level` (default `0`): if set to a non-zero value, the `Usage` line and all the `Usage` lines related to subparsers are prefixed with a markdown heading of respective level. For example, when specifying `subheading_level=2`, the final output will contain `## Usage:` instead of `Usage:`.
+
 ### Related projects
 
 - https://github.com/9999years/argdown/ — Generates Markdown and RestructuredText from argparse-based parsers.

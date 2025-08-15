@@ -1,0 +1,4 @@
+test3: Subparsers test
+
+<!--argparse_to_md:test3:get_parser:subheading_level=2-->
+<!--argparse_to_md_end-->
