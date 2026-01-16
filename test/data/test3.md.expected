@@ -7,9 +7,11 @@ testprog [-h] [--opt5 OPT5] {foo,bar} ...
 ```
 
 Positional arguments:
+
 - {`foo`, `bar`}: action to run
 
 Optional arguments:
+
 - `--opt5 OPT5`: option 5
 
 ## Usage of `foo`:
@@ -20,6 +22,7 @@ testprog foo [-h] [--opt1 OPT1] [--opt2 OPT2]
 foo action
 
 Optional arguments of `foo`:
+
 - `--opt1 OPT1`: option 1
 - `--opt2 OPT2`: option 2
 
@@ -31,6 +34,7 @@ testprog bar [-h] [--opt3 OPT3] [--opt4 OPT4]
 bar action
 
 Optional arguments of `bar`:
+
 - `--opt3 OPT3`: option 3
 - `--opt4 OPT4`: option 4
 <!--argparse_to_md_end-->

@@ -1,7 +1,10 @@
 import argparse
+import gettext
 import typing as t
+from argparse import SUPPRESS
 from dataclasses import dataclass
 
+_ = gettext.gettext
 HELP_WIDTH = 100
 
 
@@ -42,6 +45,39 @@ class MarkdownHelpFormatter(argparse.HelpFormatter):
         if has_curly_braces:
             option_decl_md = f"{{{option_decl_md}}}"
         return f"- {option_decl_md}: {action.help}\n"
+
+
+    def start_section(self, heading):
+        self._indent()
+        section = self._CustomSection(self, self._current_section, heading)
+        self._add_item(section.format_help, [])
+        self._current_section = section
+
+
+    class _CustomSection(argparse.HelpFormatter._Section):
+
+        def format_help(self):
+            # format the indented section
+            if self.parent is not None:
+                self.formatter._indent()
+            join = self.formatter._join_parts
+            item_help = join([func(*args) for func, args in self.items])
+            if self.parent is not None:
+                self.formatter._dedent()
+
+            # return nothing if the section was empty
+            if not item_help:
+                return ''
+
+            # add the heading if the section was non-empty
+            if self.heading is not SUPPRESS and self.heading is not None:
+                current_indent = self.formatter._current_indent
+                heading_text = _('%(heading)s:\n') % dict(heading=self.heading)
+                heading = '%*s%s\n' % (current_indent, '', heading_text)
+            else:
+                heading = ''
+            # join the section-initial newline, the heading and the help
+            return join(['\n', heading, item_help, '\n'])
 
 
 def get_formatter_with_usage(usage_prefix: str):

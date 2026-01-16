@@ -9,6 +9,7 @@ testprog [-h] [--foo FOO] [--bar BAR] [--baz BAZ] [--longer-argument LONGER_ARGU
 Description of the program
 
 Optional arguments:
+
 - `--foo FOO`: foo help
 - `--bar BAR`: bar help
 - `--baz BAZ`: baz help
