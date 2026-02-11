@@ -10,45 +10,205 @@ class MarkdownHelpFormatterOptions:
     subheading_level: int = 0
 
 
-class MarkdownHelpFormatter(argparse.HelpFormatter):
-    def __init__(
-        self,
-        prog,
-        indent_increment=2,
-        max_help_position=24,
-        width=HELP_WIDTH,
-        usage_prefix: str = "Usage:",
-    ):
-        self.usage_prefix = usage_prefix
-        super().__init__(prog=prog, indent_increment=indent_increment, max_help_position=max_help_position, width=width)
-
-    def _format_usage(self, usage, actions, groups, prefix):
-        prefix = f"{self.usage_prefix}\n```\n"
-        result = super()._format_usage(usage, actions, groups, prefix).rstrip("\n")
-        result += "\n```\n"
-        return result
-
-    def _format_action(self, action):
-        if action.dest == "help":
-            return ""
-        option_decl = self._format_action_invocation(action)
-        has_curly_braces = False
-        if option_decl.startswith("{") and option_decl.endswith("}"):
-            has_curly_braces = True
-            option_decl = option_decl[1:-1]
-
-        option_decl_parts = [od.strip() for od in option_decl.split(",")]
-        option_decl_md = ", ".join([f"`{od}`" for od in option_decl_parts])
-        if has_curly_braces:
-            option_decl_md = f"{{{option_decl_md}}}"
-        return f"- {option_decl_md}: {action.help}\n"
+def _get_metavar(action: argparse.Action) -> t.Union[str, tuple]:
+    if action.metavar is not None:
+        return action.metavar
+    if action.choices is not None:
+        return "{" + ",".join(str(c) for c in action.choices) + "}"
+    if action.option_strings:
+        return action.dest.upper()
+    return action.dest
 
 
-def get_formatter_with_usage(usage_prefix: str):
-    def formatter(prog, indent_increment=2, max_help_position=24, width=HELP_WIDTH):
-        return MarkdownHelpFormatter(prog, indent_increment, max_help_position, width, usage_prefix)
+def _format_args(action: argparse.Action, metavar: t.Union[str, tuple]) -> str:
+    if isinstance(metavar, tuple):
+        if action.nargs is None:
+            return str(metavar[0])
+        elif action.nargs == argparse.OPTIONAL:
+            return "[%s]" % metavar[0]
+        elif action.nargs == argparse.ZERO_OR_MORE:
+            if len(metavar) == 2:
+                return "[%s [%s ...]]" % metavar
+            return "[%s ...]" % metavar[0]
+        elif action.nargs == argparse.ONE_OR_MORE:
+            if len(metavar) == 2:
+                return "%s [%s ...]" % metavar
+            return "%s [%s ...]" % (metavar[0], metavar[0])
+        elif isinstance(action.nargs, int):
+            return " ".join(metavar[i] if i < len(metavar) else metavar[-1] for i in range(action.nargs))
+        return " ".join(str(m) for m in metavar)
 
-    return formatter
+    if action.nargs is None:
+        return metavar
+    elif action.nargs == argparse.OPTIONAL:
+        return "[%s]" % metavar
+    elif action.nargs == argparse.ZERO_OR_MORE:
+        return "[%s ...]" % metavar
+    elif action.nargs == argparse.ONE_OR_MORE:
+        return "%s [%s ...]" % (metavar, metavar)
+    elif action.nargs == argparse.REMAINDER:
+        return "..."
+    elif action.nargs == argparse.PARSER:
+        return "%s ..." % metavar
+    elif action.nargs == argparse.SUPPRESS:
+        return ""
+    else:
+        return " ".join([metavar] * int(action.nargs))
+
+
+def _format_usage_part(action: argparse.Action) -> t.Optional[str]:
+    if action.help is argparse.SUPPRESS:
+        return None
+
+    metavar = _get_metavar(action)
+
+    if not action.option_strings:
+        return _format_args(action, metavar)
+    else:
+        if action.nargs == 0:
+            part = action.option_strings[0]
+        else:
+            args_str = _format_args(action, metavar)
+            part = "%s %s" % (action.option_strings[0], args_str)
+
+        if not action.required:
+            part = "[%s]" % part
+        return part
+
+
+def _build_usage_parts(actions: list, mutex_groups: list) -> t.List[str]:
+    # Map each action to its mutex group (if any)
+    action_to_group: t.Dict[int, t.Any] = {}
+    for group in mutex_groups:
+        for action in group._group_actions:  # pylint: disable=protected-access
+            action_to_group[id(action)] = group
+
+    parts: t.List[str] = []
+    seen_groups: t.Set[int] = set()
+
+    for action in actions:
+        group = action_to_group.get(id(action))
+
+        if group is not None and id(group) not in seen_groups:
+            seen_groups.add(id(group))
+            group_parts = []
+            for group_action in group._group_actions:  # pylint: disable=protected-access
+                part = _format_usage_part(group_action)
+                if part is not None:
+                    # Strip outer [] since the group provides its own brackets
+                    if part.startswith("[") and part.endswith("]"):
+                        part = part[1:-1]
+                    group_parts.append(part)
+            if group_parts:
+                sep = " | ".join(group_parts)
+                if group.required:
+                    parts.append("(%s)" % sep)
+                else:
+                    parts.append("[%s]" % sep)
+        elif group is None:
+            part = _format_usage_part(action)
+            if part is not None:
+                parts.append(part)
+
+    return parts
+
+
+def _wrap_usage_line(prog: str, parts: t.List[str], width: int) -> str:
+    if not parts:
+        return prog
+
+    single_line = prog + " " + " ".join(parts)
+    if len(single_line) <= width:
+        return single_line
+
+    continuation_indent = " " * (len(prog) + 1)
+    lines: t.List[str] = []
+    current_line = prog
+
+    for part in parts:
+        candidate = current_line + " " + part
+        if len(candidate) <= width or current_line == prog:
+            current_line = candidate
+        else:
+            lines.append(current_line)
+            current_line = continuation_indent + part
+
+    if current_line.strip():
+        lines.append(current_line)
+
+    return "\n".join(lines)
+
+
+def _format_action_md(action: argparse.Action) -> str:
+    metavar = _get_metavar(action)
+
+    if not action.option_strings:
+        # Positional
+        if isinstance(metavar, str) and metavar.startswith("{") and metavar.endswith("}"):
+            inner = metavar[1:-1]
+            choices = [c.strip() for c in inner.split(",")]
+            invocation = "{" + ", ".join("`%s`" % c for c in choices) + "}"
+        else:
+            fmt = _format_args(action, metavar) if isinstance(metavar, tuple) else str(metavar)
+            invocation = "`%s`" % fmt
+    else:
+        if action.nargs == 0:
+            parts = ["`%s`" % os for os in action.option_strings]
+        else:
+            args_str = _format_args(action, metavar)
+            parts = ["`%s %s`" % (os, args_str) for os in action.option_strings]
+        invocation = ", ".join(parts)
+
+    return "- %s: %s\n" % (invocation, action.help)
+
+
+def _generate_parser_md(
+    parser: argparse.ArgumentParser,
+    out: t.TextIO,
+    subheading_prefix: str,
+    usage_label: str,
+    group_suffix: str,
+) -> None:
+    actions = parser._actions  # pylint: disable=protected-access
+    mutex_groups = parser._mutually_exclusive_groups  # pylint: disable=protected-access
+
+    optionals = [a for a in actions if a.option_strings]
+    positionals = [a for a in actions if not a.option_strings]
+
+    if parser.usage is not None:
+        usage_str = parser.usage % dict(prog=parser.prog)
+    else:
+        parts = _build_usage_parts(optionals + positionals, mutex_groups)
+        usage_str = _wrap_usage_line(parser.prog, parts, HELP_WIDTH)
+
+    out.write("%s%s\n```\n%s\n```\n" % (subheading_prefix, usage_label, usage_str))
+
+    if parser.description:
+        out.write("%s\n" % parser.description)
+
+    # Normalize group titles
+    title_map = {
+        "positional arguments": "Positional arguments",
+        "optional arguments": "Optional arguments",
+        "options": "Optional arguments",
+    }
+
+    for group in parser._action_groups:  # pylint: disable=protected-access
+        group_actions = [
+            a
+            for a in group._group_actions  # pylint: disable=protected-access
+            if a.dest != "help" and a.help is not argparse.SUPPRESS
+        ]
+        if not group_actions:
+            continue
+
+        title = group.title or ""
+        title = title_map.get(title.lower(), title)
+        title = "%s%s" % (title, group_suffix)
+
+        out.write("\n%s:\n" % title)
+        for action in group_actions:
+            out.write(_format_action_md(action))
 
 
 def gen_argparse_help(parser: argparse.ArgumentParser, out_readme: t.TextIO, options: MarkdownHelpFormatterOptions):
@@ -57,17 +217,20 @@ def gen_argparse_help(parser: argparse.ArgumentParser, out_readme: t.TextIO, opt
     else:
         subheading_prefix = ""
 
-    parser.formatter_class = get_formatter_with_usage(f"{subheading_prefix}Usage:")
-    parser._optionals.title = "Optional arguments"  # pylint: disable=protected-access
-    parser._positionals.title = "Positional arguments"  # pylint: disable=protected-access
-    parser.print_help(out_readme)
+    _generate_parser_md(parser, out_readme, subheading_prefix, "Usage:", "")
 
-    subparsers_actions = [action for action in parser._actions if isinstance(action, argparse._SubParsersAction)]
+    subparsers_actions = [
+        action
+        for action in parser._actions  # pylint: disable=protected-access
+        if isinstance(action, argparse._SubParsersAction)  # pylint: disable=protected-access
+    ]
     for subparsers_action in subparsers_actions:
-        # get all subparsers and print help
         for choice, subparser in subparsers_action.choices.items():
             out_readme.write("\n")
-            subparser.formatter_class = get_formatter_with_usage(f"{subheading_prefix}Usage of `{choice}`:\n")
-            subparser._optionals.title = f"Optional arguments of `{choice}`"  # pylint: disable=protected-access
-            subparser._positionals.title = f"Positional arguments of `{choice}`"  # pylint: disable=protected-access
-            subparser.print_help(out_readme)
+            _generate_parser_md(
+                subparser,
+                out_readme,
+                subheading_prefix,
+                "Usage of `%s`:\n" % choice,
+                " of `%s`" % choice,
+            )
