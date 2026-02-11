@@ -4,7 +4,7 @@ Some text before
 Usage:
 ```
 testprog [-h] [--foo FOO] [--bar BAR] [--baz BAZ] [--longer-argument LONGER_ARGUMENT]
-                    [--even-longer-argument EVEN_LONGER_ARGUMENT]
+         [--even-longer-argument EVEN_LONGER_ARGUMENT]
 ```
 Description of the program
 

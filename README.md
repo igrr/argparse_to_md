@@ -60,9 +60,8 @@ You can also use argparse_to_md from the command line:
 <!-- argparse_to_md:argparse_to_md.__main__:get_parser -->
 Usage:
 ```
-argparse_to_md [-h] [-i INPUT [INPUT ...]]
-                          [--extra-sys-path EXTRA_SYS_PATH [EXTRA_SYS_PATH ...]] [--check]
-                          [--version]
+argparse_to_md [-h] [-i INPUT [INPUT ...]] [--extra-sys-path EXTRA_SYS_PATH [EXTRA_SYS_PATH ...]]
+               [--check] [--version]
 ```
 
 Optional arguments:
