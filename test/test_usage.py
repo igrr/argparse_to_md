@@ -80,6 +80,11 @@ def test_subparsers():
 def test_arguments_to_options():
     assert args_to_options("") == MarkdownHelpFormatterOptions()
     assert args_to_options("subheading_level=2") == MarkdownHelpFormatterOptions(subheading_level=2)
+    assert args_to_options("pad_lists=1") == MarkdownHelpFormatterOptions(pad_lists=True)
+    assert args_to_options("pad_lists=0") == MarkdownHelpFormatterOptions(pad_lists=False)
+    assert args_to_options("subheading_level=2:pad_lists=1") == MarkdownHelpFormatterOptions(
+        subheading_level=2, pad_lists=True
+    )
     with pytest.raises(ValueError):
         args_to_options("subheading_level=2:foo=bar")
     with pytest.raises(ValueError):

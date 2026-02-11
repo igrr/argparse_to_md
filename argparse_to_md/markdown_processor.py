@@ -68,7 +68,12 @@ def args_to_options(args: str) -> MarkdownHelpFormatterOptions:
         subheading_level = int(args_dict["subheading_level"])
         del args_dict["subheading_level"]
 
+    pad_lists = False
+    if "pad_lists" in args_dict:
+        pad_lists = bool(int(args_dict["pad_lists"]))
+        del args_dict["pad_lists"]
+
     if args_dict:
         raise ValueError(f"Unknown arguments: {args_dict}")
 
-    return MarkdownHelpFormatterOptions(subheading_level=subheading_level)
+    return MarkdownHelpFormatterOptions(subheading_level=subheading_level, pad_lists=pad_lists)

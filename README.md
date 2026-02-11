@@ -83,6 +83,7 @@ Output can be customized by passing additional options in the comment:
 The following options are supported:
 
 - `subheading_level` (default `0`): if set to a non-zero value, the `Usage` line and all the `Usage` lines related to subparsers are prefixed with a markdown heading of respective level. For example, when specifying `subheading_level=2`, the final output will contain `## Usage:` instead of `Usage:`.
+- `pad_lists` (default `0`): if set to `1`, an empty line is added before each markdown list. Some markdown renderers require this blank line for proper list rendering.
 
 ### Related projects
 

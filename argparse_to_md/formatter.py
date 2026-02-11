@@ -8,6 +8,7 @@ HELP_WIDTH = 100
 @dataclass
 class MarkdownHelpFormatterOptions:
     subheading_level: int = 0
+    pad_lists: bool = False
 
 
 def _get_metavar(action: argparse.Action) -> t.Union[str, tuple]:
@@ -165,10 +166,15 @@ def _format_action_md(action: argparse.Action) -> str:
 def _generate_parser_md(
     parser: argparse.ArgumentParser,
     out: t.TextIO,
-    subheading_prefix: str,
+    options: MarkdownHelpFormatterOptions,
     usage_label: str,
     group_suffix: str,
 ) -> None:
+    if options.subheading_level > 0:
+        subheading_prefix = "#" * options.subheading_level + " "
+    else:
+        subheading_prefix = ""
+
     actions = parser._actions  # pylint: disable=protected-access
     mutex_groups = parser._mutually_exclusive_groups  # pylint: disable=protected-access
 
@@ -207,17 +213,14 @@ def _generate_parser_md(
         title = "%s%s" % (title, group_suffix)
 
         out.write("\n%s:\n" % title)
+        if options.pad_lists:
+            out.write("\n")
         for action in group_actions:
             out.write(_format_action_md(action))
 
 
 def gen_argparse_help(parser: argparse.ArgumentParser, out_readme: t.TextIO, options: MarkdownHelpFormatterOptions):
-    if options.subheading_level > 0:
-        subheading_prefix = "#" * options.subheading_level + " "
-    else:
-        subheading_prefix = ""
-
-    _generate_parser_md(parser, out_readme, subheading_prefix, "Usage:", "")
+    _generate_parser_md(parser, out_readme, options, "Usage:", "")
 
     subparsers_actions = [
         action
@@ -230,7 +233,7 @@ def gen_argparse_help(parser: argparse.ArgumentParser, out_readme: t.TextIO, opt
             _generate_parser_md(
                 subparser,
                 out_readme,
-                subheading_prefix,
+                options,
                 "Usage of `%s`:\n" % choice,
                 " of `%s`" % choice,
             )
