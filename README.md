@@ -28,7 +28,7 @@
     <!-- argparse_to_md_end -->
     ```
 3. Run `argparse_to_md`, either manually or as a pre-commit hook. The README.md file will be updated, the usage instructions will appear inside this section:
-    ```md
+    ````md
     ### Usage
 
     <!-- argparse_to_md:mytool:create_parser -->
@@ -41,7 +41,7 @@
     - `-h`, `--help`: show this help message and exit
     - ...
     <!-- argparse_to_md_end -->
-    ```
+    ````
 4. Whenever you modify the parser in your code, re-run `argparse_to_md`, or let the pre-commit hook run. README.md will be updated with the new usage instructions.
 
 ### Usage as a pre-commit hook
