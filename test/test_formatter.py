@@ -355,3 +355,50 @@ def test_gen_argparse_help_custom_usage():
 
     result = out.getvalue()
     assert "myprog [options] FILE\n" in result
+
+
+def test_gen_argparse_help_pad_lists():
+    parser = argparse.ArgumentParser(prog="myprog", description="My program")
+    parser.add_argument("--foo", help="foo help")
+
+    out = io.StringIO()
+    gen_argparse_help(parser, out, MarkdownHelpFormatterOptions(pad_lists=True))
+
+    result = out.getvalue()
+    assert "Optional arguments:\n\n- `--foo FOO`: foo help\n" in result
+
+
+def test_gen_argparse_help_no_pad_lists():
+    parser = argparse.ArgumentParser(prog="myprog", description="My program")
+    parser.add_argument("--foo", help="foo help")
+
+    out = io.StringIO()
+    gen_argparse_help(parser, out, MarkdownHelpFormatterOptions(pad_lists=False))
+
+    result = out.getvalue()
+    assert "Optional arguments:\n- `--foo FOO`: foo help\n" in result
+
+
+def test_gen_argparse_help_pad_lists_with_subparsers():
+    parser = argparse.ArgumentParser(prog="myprog")
+    subparsers = parser.add_subparsers(dest="cmd", help="command")
+    sub = subparsers.add_parser("run", description="run cmd")
+    sub.add_argument("--fast", action="store_true", help="go fast")
+
+    out = io.StringIO()
+    gen_argparse_help(parser, out, MarkdownHelpFormatterOptions(pad_lists=True))
+
+    result = out.getvalue()
+    assert "Optional arguments of `run`:\n\n- `--fast`: go fast\n" in result
+
+
+def test_gen_argparse_help_pad_lists_with_subheading():
+    parser = argparse.ArgumentParser(prog="myprog")
+    parser.add_argument("--foo", help="foo help")
+
+    out = io.StringIO()
+    gen_argparse_help(parser, out, MarkdownHelpFormatterOptions(subheading_level=2, pad_lists=True))
+
+    result = out.getvalue()
+    assert result.startswith("## Usage:\n")
+    assert "Optional arguments:\n\n- `--foo FOO`: foo help\n" in result
