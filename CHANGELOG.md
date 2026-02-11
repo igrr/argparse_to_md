@@ -1,3 +1,13 @@
+## v0.5.0 (2026-02-11)
+
+### Feat
+
+- add pad_lists option for empty line before markdown lists
+
+### Fix
+
+- generate markdown directly instead of relying on argparse formatter
+
 ## v0.4.0 (2025-08-15)
 
 ### Feat
