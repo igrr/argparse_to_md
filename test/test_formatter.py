@@ -168,6 +168,12 @@ def test_format_usage_part_nargs_plus():
     assert _format_usage_part(action) == "[-i INPUT [INPUT ...]]"
 
 
+def test_format_usage_part_extend_nargs_plus():
+    parser = argparse.ArgumentParser()
+    action = parser.add_argument("-i", "--input", nargs="+", action="extend", default=[])
+    assert _format_usage_part(action) == "[-i INPUT [-i INPUT ...]]"
+
+
 # --- _build_usage_parts ---
 
 
@@ -277,6 +283,14 @@ def test_format_action_md_nargs_plus_multiple_opts():
     parser = argparse.ArgumentParser()
     action = parser.add_argument("-i", "--input", nargs="+", help="input files")
     assert _format_action_md(action) == "- `-i INPUT [INPUT ...]`, `--input INPUT [INPUT ...]`: input files\n"
+
+
+def test_format_action_md_extend_nargs_plus():
+    parser = argparse.ArgumentParser()
+    action = parser.add_argument("-i", "--input", nargs="+", action="extend", default=[], help="input files")
+    assert (
+        _format_action_md(action) == "- `-i INPUT [-i INPUT ...]`, `--input INPUT [--input INPUT ...]`: input files\n"
+    )
 
 
 def test_format_action_md_positional():

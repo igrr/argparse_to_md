@@ -60,12 +60,12 @@ You can also use argparse_to_md from the command line:
 <!-- argparse_to_md:argparse_to_md.__main__:get_parser -->
 Usage:
 ```
-argparse_to_md [-h] [-i INPUT [INPUT ...]] [--extra-sys-path EXTRA_SYS_PATH [EXTRA_SYS_PATH ...]]
+argparse_to_md [-h] [-i INPUT [-i INPUT ...]] [--extra-sys-path EXTRA_SYS_PATH [EXTRA_SYS_PATH ...]]
                [--check] [--version]
 ```
 
 Optional arguments:
-- `-i INPUT [INPUT ...]`, `--input INPUT [INPUT ...]`: Markdown file to update (can be specified multiple times).
+- `-i INPUT [-i INPUT ...]`, `--input INPUT [--input INPUT ...]`: Markdown file to update (can be specified multiple times).
 - `--extra-sys-path EXTRA_SYS_PATH [EXTRA_SYS_PATH ...]`: Extra paths to add to PYTHONPATH before loading the module
 - `--check`: Check if the files need to be updated, but don't modify them. Non-zero exit code is returned if any file needs to be updated.
 - `--version`: show program's version number and exit

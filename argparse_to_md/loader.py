@@ -31,7 +31,7 @@ class FunctionLoader:
         :param function_name: The name of the function to load from the module.
         :param cwd: Optional: the current working directory, to add to the sys.path.
         """
-        extra_sys_path = self.extra_sys_path
+        extra_sys_path = list(self.extra_sys_path)
         if cwd is not None:
             extra_sys_path = [cwd] + extra_sys_path
         with self._sys_path_extend(extra_sys_path):

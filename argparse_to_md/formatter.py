@@ -57,6 +57,11 @@ def _format_args(action: argparse.Action, metavar: t.Union[str, tuple]) -> str:
         return " ".join([metavar] * int(action.nargs))
 
 
+def _is_extend_action(action: argparse.Action) -> bool:
+    extend_cls = getattr(argparse, "_ExtendAction", None)
+    return extend_cls is not None and isinstance(action, extend_cls)
+
+
 def _format_usage_part(action: argparse.Action) -> t.Optional[str]:
     if action.help is argparse.SUPPRESS:
         return None
@@ -68,6 +73,9 @@ def _format_usage_part(action: argparse.Action) -> t.Optional[str]:
     else:
         if action.nargs == 0:
             part = action.option_strings[0]
+        elif _is_extend_action(action) and action.nargs == argparse.ONE_OR_MORE:
+            opt = action.option_strings[0]
+            part = "%s %s [%s %s ...]" % (opt, metavar, opt, metavar)
         else:
             args_str = _format_args(action, metavar)
             part = "%s %s" % (action.option_strings[0], args_str)
@@ -155,6 +163,8 @@ def _format_action_md(action: argparse.Action) -> str:
     else:
         if action.nargs == 0:
             parts = ["`%s`" % os for os in action.option_strings]
+        elif _is_extend_action(action) and action.nargs == argparse.ONE_OR_MORE:
+            parts = ["`%s %s [%s %s ...]`" % (os, metavar, os, metavar) for os in action.option_strings]
         else:
             args_str = _format_args(action, metavar)
             parts = ["`%s %s`" % (os, args_str) for os in action.option_strings]
