@@ -1,6 +1,7 @@
 import argparse
 import difflib
 import io
+import os
 import sys
 
 from . import __version__
@@ -14,7 +15,9 @@ def get_parser() -> argparse.ArgumentParser:
         "-i",
         "--input",
         nargs="+",
+        action="extend",
         type=argparse.FileType("r+"),
+        default=[],
         help="Markdown file to update (can be specified multiple times).",
     )
     parser.add_argument(
@@ -37,7 +40,14 @@ def main() -> None:
     if not args.input:
         raise SystemExit("No input files specified")
 
-    loader = FunctionLoader(args.extra_sys_path)
+    # Include the process CWD in the loader's search path so that modules
+    # at the repo root can be found even when input files are in subdirectories.
+    # When running as a pre-commit hook, CWD is the repo root (per githooks(5)).
+    extra_paths = [os.path.realpath(p) for p in (args.extra_sys_path or [])]
+    process_cwd = os.path.realpath(os.getcwd())
+    if process_cwd not in extra_paths:
+        extra_paths.append(process_cwd)
+    loader = FunctionLoader(extra_paths)
 
     changes_required = False
     for in_markdown in args.input:
