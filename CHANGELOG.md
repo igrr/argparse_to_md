@@ -1,3 +1,9 @@
+## v0.5.1 (2026-02-20)
+
+### Fix
+
+- accumulate multiple --input flags and add process cwd to loader path
+
 ## v0.5.0 (2026-02-11)
 
 ### Feat
